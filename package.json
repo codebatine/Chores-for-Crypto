@@ -1,0 +1,17 @@
+{
+  "name": "chores-for-crypto",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.0",
+    "ethers": "^6.10.0",
+    "hardhat": "^2.24.1"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.8.0",
+    "@openzeppelin/contracts": "^4.9.6"
+  }
+}
