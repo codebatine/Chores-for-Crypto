@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+artifacts/
+cache/
+coverage/
+.env
+.env.*
+!.env.example
+
+# Hardhat/Truffle/Foundry
+*.tsbuildinfo
+typechain/
+out/
+*.db
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+.history/
+
+# Misc
+*.log
+*.pid
+*.seed
+*.tgz
+
+# Solidity coverage
+coverage.json
+
+# React build
+*.local
+*.lock
+*.map
+*.next/
+.next
+.idea/
+*.sublime-workspace
+*.sublime-project
