@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {CCIPReceiver} from "@chainlink/contracts-ccip/contracts/applications/CCIPReceiver.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "https://raw.githubusercontent.com/smartcontractkit/chainlink-ccip/develop/chains/evm/contracts/applications/CCIPReceiver.sol";
+import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/release-v4.9/contracts/token/ERC20/IERC20.sol";
+import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/release-v4.9/contracts/access/Ownable.sol";
 
-contract ChildRewardReceiver is CCIPReceiver {
+contract ChildRewardReceiver is CCIPReceiver, Ownable {
     address public rewardToken;
 
     event RewardReceived(address indexed child, uint256 amount);
@@ -21,7 +22,7 @@ contract ChildRewardReceiver is CCIPReceiver {
         emit RewardReceived(child, amount);
     }
 
-    function setRewardToken(address token) external {
+    function setRewardToken(address token) external onlyOwner {
         rewardToken = token;
     }
 }
