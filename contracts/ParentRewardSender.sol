@@ -1,33 +1,87 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.24;
 
-import "https://raw.githubusercontent.com/smartcontractkit/chainlink-ccip/develop/chains/evm/contracts/applications/CCIPSender.sol";
-import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/release-v4.9/contracts/access/Ownable.sol";
-import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/release-v4.9/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IRouterClient} from "@chainlink/contracts-ccip/contracts/interfaces/IRouterClient.sol";
+import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
 
-contract ParentRewardSender is CCIPSender, Ownable {
+contract ParentRewardSender is Ownable {
+    IRouterClient public router;
     address public rewardToken;
 
-    event RewardSent(bytes32 messageId, address indexed child, uint256 amount, uint64 destinationChainSelector);
+    event RewardSent(
+        bytes32 messageId,
+        address indexed child,
+        uint256 amount,
+        uint64 destinationChainSelector
+    );
 
-    constructor(address _router, address _link, address _rewardToken)
-        CCIPSender(_router, _link)
-    {
+    constructor(address _router, address _rewardToken) {
+        router = IRouterClient(_router);
         rewardToken = _rewardToken;
     }
 
-    function sendReward(address child, uint256 amount, uint64 destinationChainSelector) external onlyOwner {
-        require(IERC20(rewardToken).balanceOf(address(this)) >= amount, "Insufficient balance");
-        bytes memory message = abi.encode(child, amount);
-        bytes32 messageId = _send(destinationChainSelector, message, rewardToken, amount);
+    function sendReward(
+        address receiverContract,
+        address child,
+        uint256 amount,
+        uint64 destinationChainSelector
+    ) external onlyOwner {
+        require(
+            IERC20(rewardToken).balanceOf(address(this)) >= amount,
+            "Insufficient balance"
+        );
+
+        // Prepare payload
+        bytes memory data = abi.encode(child, amount);
+
+        // Prepare token transfer array (THIS IS THE ACTUAL FIX)
+        Client.EVMTokenAmount;
+        tokenAmounts[0] = Client.EVMTokenAmount({
+            token: rewardToken,
+            amount: amount
+        });
+
+        // Approve router to pull tokens for the transfer
+        require(
+            IERC20(rewardToken).approve(address(router), amount),
+            "Approve failed"
+        );
+
+        // Set extra args (gas limit, etc)
+        bytes memory extraArgs = Client._argsToBytes(
+            Client.EVMExtraArgsV1({gasLimit: 200_000})
+        );
+
+        // Construct the message
+        Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
+            receiver: abi.encode(receiverContract),
+            data: data,
+            tokenAmounts: tokenAmounts,
+            extraArgs: extraArgs,
+            feeToken: address(0) // Use LINK address if paying in LINK
+        });
+
+        uint256 fee = router.getFee(destinationChainSelector, message);
+
+        bytes32 messageId = router.ccipSend{value: fee}(
+            destinationChainSelector,
+            message
+        );
+
         emit RewardSent(messageId, child, amount, destinationChainSelector);
     }
 
-    function setRewardToken(address token) external onlyOwner {
-        rewardToken = token;
-    }
-
-    function withdrawTokens(address token, address to, uint256 amount) external onlyOwner {
+    // Withdraw ERC20 tokens mistakenly sent to this contract
+    function withdrawTokens(
+        address token,
+        address to,
+        uint256 amount
+    ) external onlyOwner {
         require(IERC20(token).transfer(to, amount), "Withdraw failed");
     }
+
+    // To receive ETH for fees if needed
+    receive() external payable {}
 }

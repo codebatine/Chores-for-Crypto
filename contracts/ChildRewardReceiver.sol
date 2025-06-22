@@ -1,23 +1,31 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.24;
 
-import "https://raw.githubusercontent.com/smartcontractkit/chainlink-ccip/develop/chains/evm/contracts/applications/CCIPReceiver.sol";
-import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/release-v4.9/contracts/token/ERC20/IERC20.sol";
-import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/release-v4.9/contracts/access/Ownable.sol";
+import {CCIPReceiver} from "@chainlink/contracts-ccip/contracts/applications/CCIPReceiver.sol";
+import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract ChildRewardReceiver is CCIPReceiver, Ownable {
     address public rewardToken;
 
     event RewardReceived(address indexed child, uint256 amount);
 
-    constructor(address _router, address _rewardToken)
-        CCIPReceiver(_router)
-    {
+    constructor(
+        address _router,
+        address _rewardToken,
+        address initialOwner
+    ) CCIPReceiver(_router) Ownable(initialOwner) {
         rewardToken = _rewardToken;
     }
 
-    function _ccipReceive(bytes memory message) internal override {
-        (address child, uint256 amount) = abi.decode(message, (address, uint256));
+    function _ccipReceive(
+        Client.Any2EVMMessage memory message
+    ) internal override {
+        (address child, uint256 amount) = abi.decode(
+            message.data,
+            (address, uint256)
+        );
         require(IERC20(rewardToken).transfer(child, amount), "Transfer failed");
         emit RewardReceived(child, amount);
     }
