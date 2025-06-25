@@ -17,7 +17,11 @@ contract ParentRewardSender is Ownable {
         uint64 destinationChainSelector
     );
 
-    constructor(address _router, address _rewardToken) {
+    constructor(
+        address _router,
+        address _rewardToken,
+        address initialOwner
+    ) Ownable(initialOwner) {
         router = IRouterClient(_router);
         rewardToken = _rewardToken;
     }
@@ -36,8 +40,9 @@ contract ParentRewardSender is Ownable {
         // Prepare payload
         bytes memory data = abi.encode(child, amount);
 
-        // Prepare token transfer array (THIS IS THE ACTUAL FIX)
-        Client.EVMTokenAmount;
+        // Prepare token transfer array
+        Client.EVMTokenAmount[]
+            memory tokenAmounts = new Client.EVMTokenAmount[](1);
         tokenAmounts[0] = Client.EVMTokenAmount({
             token: rewardToken,
             amount: amount
