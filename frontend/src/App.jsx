@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Web3Modal from 'web3modal';
+import Dashboard from '../components/Dashboard';
 
-function App() {
+export default function App() {
   const [address, setAddress] = useState(null);
 
   // Setup Web3Modal
@@ -34,37 +35,27 @@ function App() {
     // eslint-disable-next-line
   }, []);
 
+  // Main render
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-400 via-purple-200 to-yellow-100">
-      <h1 className="text-4xl font-bold text-blue-800 mb-8">
-        Chores for Crypto
-      </h1>
-
-      {address ? (
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-lg text-gray-800 bg-white px-4 py-2 rounded-xl shadow">
-            Connected:{' '}
-            <span className="font-mono">
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </span>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-purple-200 to-yellow-100">
+      {!address ? (
+        <div className="flex flex-col items-center gap-8">
+          <h1 className="text-4xl font-bold text-blue-800 mb-8">
+            Chores for Crypto
+          </h1>
           <button
-            onClick={disconnectWallet}
-            className="bg-red-500 hover:bg-red-700 text-white px-8 py-3 rounded-xl text-lg shadow"
+            onClick={connectWallet}
+            className="bg-blue-600 hover:bg-blue-800 text-white px-8 py-3 rounded-xl text-lg shadow-lg transition"
           >
-            Disconnect
+            Connect Wallet
           </button>
         </div>
       ) : (
-        <button
-          onClick={connectWallet}
-          className="bg-blue-600 hover:bg-blue-800 text-white px-8 py-3 rounded-xl text-lg shadow-lg"
-        >
-          Connect Wallet
-        </button>
+        <Dashboard
+          address={address}
+          onDisconnect={disconnectWallet}
+        />
       )}
     </div>
   );
 }
-
-export default App;
