@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useChoresContract } from '../hooks/useChoresContract';
 import TransactionSuccessModal from './TransactionSuccessModal';
+import AddressBook from './AddressBook';
 
 export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
   const [childAddress, setChildAddress] = useState('');
   const [usdAmount, setUsdAmount] = useState('');
   const [ethEquivalent, setEthEquivalent] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showAddressBook, setShowAddressBook] = useState(false);
   const [transactionData, setTransactionData] = useState(null);
   const { sendReward, getETHAmountFromUSD, isLoading, error } =
     useChoresContract();
@@ -60,6 +62,13 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
     }
   };
 
+  const handleAddressSelect = (address) => {
+    setChildAddress(address);
+    setShowAddressBook(false);
+    // Optional: Add visual feedback that address was selected
+    console.log('Address selected from address book:', address);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -82,14 +91,37 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Child's Address
             </label>
-            <input
-              type="text"
-              value={childAddress}
-              onChange={(e) => setChildAddress(e.target.value)}
-              placeholder="0x..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={childAddress}
+                onChange={(e) => setChildAddress(e.target.value)}
+                placeholder="0x... or select from address book"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowAddressBook(true)}
+                className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-1"
+                title="Choose from address book"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+                📒
+              </button>
+            </div>
           </div>
 
           <div>
@@ -148,6 +180,12 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
         isOpen={showSuccessModal}
         onClose={handleSuccessModalClose}
         transactionData={transactionData}
+      />
+
+      <AddressBook
+        isOpen={showAddressBook}
+        onClose={() => setShowAddressBook(false)}
+        onSelectAddress={handleAddressSelect}
       />
     </div>
   );
