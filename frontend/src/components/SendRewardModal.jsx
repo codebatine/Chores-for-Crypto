@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useChoresContract } from '../hooks/useChoresContract';
+import TransactionSuccessModal from './TransactionSuccessModal';
 
 export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
   const [childAddress, setChildAddress] = useState('');
   const [usdAmount, setUsdAmount] = useState('');
   const [ethEquivalent, setEthEquivalent] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [transactionData, setTransactionData] = useState(null);
   const { sendReward, getETHAmountFromUSD, isLoading, error } =
     useChoresContract();
 
@@ -41,19 +44,36 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
     const result = await sendReward(childAddress, parseFloat(usdAmount));
 
     if (result.success) {
-      onSuccess(`Reward sent! Transaction: ${result.txHash}`);
+      setTransactionData(result.transactionData);
+      setShowSuccessModal(true);
       setChildAddress('');
       setUsdAmount('');
       setEthEquivalent('');
-      onClose();
+      // Don't close the main modal immediately - let the success modal show first
+    }
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    setTransactionData(null);
+    onClose(); // Close the main modal after success modal closes
+    if (onSuccess) {
+      onSuccess('Reward sent successfully!');
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50"
+      style={{ backgroundColor: 'rgb(253, 253, 253)' }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl p-8 max-w-md w-full m-4 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Send Reward</h2>
 
         <form
@@ -90,33 +110,6 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
             />
           </div>
 
-          <button
-            type="button"
-            onClick={async () => {
-              console.log('Testing contract call...');
-              const result = await getETHAmountFromUSD('3');
-              console.log('Test result:', result);
-              alert(`ETH result: ${result}`);
-            }}
-            className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-          >
-            Test Contract Call (Remove Later)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              console.log('Debug button clicked!');
-              getETHAmountFromUSD('3').then((result) => {
-                console.log('Debug result:', result);
-                alert(`Debug result: ${result}`);
-              });
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded mb-4"
-          >
-            Debug Contract
-          </button>
-
           {ethEquivalent && (
             <div className="bg-blue-50 p-3 rounded-lg">
               <p className="text-sm text-blue-800">
@@ -152,6 +145,12 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
           </div>
         </form>
       </div>
+
+      <TransactionSuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        transactionData={transactionData}
+      />
     </div>
   );
 }

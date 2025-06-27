@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import SendRewardModal from '../src/components/SendRewardModal';
+import Toast from '../src/components/Toast';
 
 export default function Dashboard({ address, onDisconnect }) {
   const [showSendModal, setShowSendModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success',
+  });
 
   const handleSendSuccess = (message) => {
-    setSuccessMessage(message);
-    setTimeout(() => setSuccessMessage(''), 5000);
+    setToast({ isVisible: true, message, type: 'success' });
+  };
+
+  const closeToast = () => {
+    setToast((prev) => ({ ...prev, isVisible: false }));
   };
 
   return (
@@ -18,12 +26,6 @@ export default function Dashboard({ address, onDisconnect }) {
           {address.slice(0, 6)}...{address.slice(-4)}
         </span>
       </div>
-
-      {successMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
-          {successMessage}
-        </div>
-      )}
 
       <div className="w-full flex flex-col gap-5 mt-2">
         <button
@@ -48,6 +50,13 @@ export default function Dashboard({ address, onDisconnect }) {
         isOpen={showSendModal}
         onClose={() => setShowSendModal(false)}
         onSuccess={handleSendSuccess}
+      />
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={closeToast}
       />
     </div>
   );
