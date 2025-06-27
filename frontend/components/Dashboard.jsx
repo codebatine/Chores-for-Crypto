@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import SendRewardModal from '../src/components/SendRewardModal';
 import AddressBook from '../src/components/AddressBook';
+import TransactionHistory from '../src/components/TransactionHistory';
 import Toast from '../src/components/Toast';
 
 export default function Dashboard({ address, onDisconnect }) {
   const [showSendModal, setShowSendModal] = useState(false);
   const [showAddressBook, setShowAddressBook] = useState(false);
+  const [showTransactionHistory, setShowTransactionHistory] = useState(false);
   const [toast, setToast] = useState({
     isVisible: false,
     message: '',
@@ -100,8 +102,11 @@ export default function Dashboard({ address, onDisconnect }) {
         >
           📒 Address Book
         </button>
-        <button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 active:scale-95 text-white px-7 py-3 rounded-xl font-bold shadow-lg ring-2 ring-purple-300/30 focus:outline-none focus:ring-4 transition-all duration-200">
-          View Transactions
+        <button
+          onClick={() => setShowTransactionHistory(true)}
+          className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 active:scale-95 text-white px-7 py-3 rounded-xl font-bold shadow-lg ring-2 ring-purple-300/30 focus:outline-none focus:ring-4 transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          📊 View Transactions
         </button>
       </div>
 
@@ -121,7 +126,12 @@ export default function Dashboard({ address, onDisconnect }) {
       <AddressBook
         isOpen={showAddressBook}
         onClose={() => setShowAddressBook(false)}
-        onSelectAddress={() => {}} // No action needed from Dashboard
+        onSelectAddress={() => {}}
+      />
+
+      <TransactionHistory
+        isOpen={showTransactionHistory}
+        onClose={() => setShowTransactionHistory(false)}
       />
 
       <Toast

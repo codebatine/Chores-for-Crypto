@@ -45,6 +45,31 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
     const result = await sendReward(childAddress, parseFloat(usdAmount));
 
     if (result.success) {
+      // Save transaction to history
+      const transactionEntry = {
+        txHash: result.transactionData.txHash,
+        toAddress: childAddress,
+        usdAmount: usdAmount,
+        ethAmount: result.transactionData.ethAmount,
+        timestamp: Date.now(),
+        status: 'success',
+      };
+
+      const existingHistory = localStorage.getItem(
+        'chores-transaction-history',
+      );
+      const history = existingHistory ? JSON.parse(existingHistory) : [];
+      history.unshift(transactionEntry); // Add to beginning of array (newest first)
+
+      if (history.length > 50) {
+        history.splice(50);
+      }
+
+      localStorage.setItem(
+        'chores-transaction-history',
+        JSON.stringify(history),
+      );
+
       setTransactionData(result.transactionData);
       setShowSuccessModal(true);
       setChildAddress('');
@@ -56,10 +81,21 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setTransactionData(null);
-    onClose();
+    // Don't auto-close the main modal - let user decide
+    // onClose();
     if (onSuccess) {
       onSuccess('Reward sent successfully!');
     }
+  };
+
+  const handleMainModalClose = () => {
+    // Reset all states when manually closing
+    setShowSuccessModal(false);
+    setTransactionData(null);
+    setChildAddress('');
+    setUsdAmount('');
+    setEthEquivalent('');
+    onClose();
   };
 
   const handleAddressSelect = (address) => {
@@ -75,7 +111,7 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ backgroundColor: 'rgb(253, 253, 253)' }}
-      onClick={onClose}
+      onClick={handleMainModalClose}
     >
       <div
         className="bg-white rounded-2xl p-8 max-w-md w-full m-4 shadow-lg"
@@ -160,7 +196,7 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
           <div className="flex gap-3 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleMainModalClose}
               className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel

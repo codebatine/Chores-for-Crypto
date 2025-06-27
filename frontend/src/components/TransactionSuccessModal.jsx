@@ -182,6 +182,10 @@ export default function TransactionSuccessModal({
         <div className="text-center mt-4 text-sm text-gray-500">
           The child will receive their reward once the transaction is confirmed!
           🚀
+          <br />
+          <span className="text-xs text-gray-400">
+            Transaction saved to history 📊
+          </span>
         </div>
       </div>
 
