@@ -1,4 +1,3 @@
-// Contract configuration
 export const CONTRACT_ADDRESS = '0x210b858E80253117e7a572112810ECc07c44A98C';
 
 export const CONTRACT_ABI = [
@@ -57,6 +56,5 @@ export const CONTRACT_ABI = [
   },
 ];
 
-// Network configuration
 export const SEPOLIA_CHAIN_ID = 11155111n;
-export const PRICE_BUFFER_PERCENTAGE = 110; // 10% buffer for price fluctuations
+export const PRICE_BUFFER_PERCENTAGE = 110;

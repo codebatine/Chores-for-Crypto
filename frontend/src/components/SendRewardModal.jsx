@@ -11,7 +11,6 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
   const { sendReward, getETHAmountFromUSD, isLoading, error } =
     useChoresContract();
 
-  // Calculate ETH equivalent when USD amount changes
   useEffect(() => {
     const calculateETH = async () => {
       console.log('calculateETH called with usdAmount:', usdAmount);
@@ -49,14 +48,13 @@ export default function SendRewardModal({ isOpen, onClose, onSuccess }) {
       setChildAddress('');
       setUsdAmount('');
       setEthEquivalent('');
-      // Don't close the main modal immediately - let the success modal show first
     }
   };
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setTransactionData(null);
-    onClose(); // Close the main modal after success modal closes
+    onClose();
     if (onSuccess) {
       onSuccess('Reward sent successfully!');
     }

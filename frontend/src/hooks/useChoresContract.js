@@ -14,13 +14,10 @@ export function useChoresContract() {
 
       const contract = await getContract(true);
 
-      // Convert USD to wei (contract expects USD in wei format)
       const usdInWei = ethers.parseEther(usdAmount.toString());
 
-      // Get required ETH amount
       const ethAmount = await contract.getETHAmountFromUSD(usdInWei);
 
-      // Send transaction with buffer for price fluctuations
       const ethWithBuffer =
         (ethAmount * BigInt(PRICE_BUFFER_PERCENTAGE)) / BigInt(100);
 
@@ -30,7 +27,6 @@ export function useChoresContract() {
 
       await tx.wait();
 
-      // Return detailed transaction data for the success modal
       return {
         success: true,
         txHash: tx.hash,
