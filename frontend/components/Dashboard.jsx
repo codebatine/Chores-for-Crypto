@@ -1,6 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
+import SendRewardModal from '../src/components/SendRewardModal';
 
 export default function Dashboard({ address, onDisconnect }) {
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleSendSuccess = (message) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(''), 5000);
+  };
+
   return (
     <div className="flex flex-col items-center gap-8 bg-white/30 p-10 rounded-3xl shadow-2xl max-w-md w-full backdrop-blur-md transition-all duration-300 border border-white/40">
       <div className="text-lg text-blue-900 font-semibold tracking-wide">
@@ -10,12 +19,21 @@ export default function Dashboard({ address, onDisconnect }) {
         </span>
       </div>
 
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+          {successMessage}
+        </div>
+      )}
+
       <div className="w-full flex flex-col gap-5 mt-2">
-        <button className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 active:scale-95 text-white px-7 py-3 rounded-xl font-bold shadow-lg ring-2 ring-green-300/30 focus:outline-none focus:ring-4 transition-all duration-200">
+        <button
+          onClick={() => setShowSendModal(true)}
+          className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 active:scale-95 text-white px-7 py-3 rounded-xl font-bold shadow-lg ring-2 ring-green-300/30 focus:outline-none focus:ring-4 transition-all duration-200"
+        >
           Send Reward (parent)
         </button>
         <button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 active:scale-95 text-white px-7 py-3 rounded-xl font-bold shadow-lg ring-2 ring-purple-300/30 focus:outline-none focus:ring-4 transition-all duration-200">
-          Receive Reward (child)
+          View Transactions
         </button>
       </div>
 
@@ -25,6 +43,12 @@ export default function Dashboard({ address, onDisconnect }) {
       >
         Disconnect
       </button>
+
+      <SendRewardModal
+        isOpen={showSendModal}
+        onClose={() => setShowSendModal(false)}
+        onSuccess={handleSendSuccess}
+      />
     </div>
   );
 }

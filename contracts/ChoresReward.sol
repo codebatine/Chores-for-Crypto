@@ -41,9 +41,12 @@ contract ChoresReward {
         uint256 usdAmount
     ) public view returns (uint256) {
         (, int256 price, , , ) = priceFeed.latestRoundData();
-        // Chainlink price is 8 decimals, so 1 ETH = price / 10**8 USD
-        // USD has 18 decimals, so we scale up accordingly
         require(price > 0, "Invalid price feed value");
-        return ((usdAmount * 1e18) / uint256(price)) * 1e8;
+
+        // CORRECTED FORMULA:
+        // usdAmount is expected in wei (18 decimals)
+        // price is in 8 decimals from Chainlink
+        // Result should be ETH amount in wei
+        return (usdAmount * 1e18) / (uint256(price) * 1e8);
     }
 }
