@@ -7,7 +7,7 @@ Rewards for chores with Sepolia ETH, priced in real-time USD using Chainlink ora
 ## Project Links
 
 - **Contract Address:** [ChoresReward.sol on Sepolia Etherscan](https://sepolia.etherscan.io/address/0x210b858e80253117e7a572112810ecc07c44a98c)
-- **Demo Video:** [YouTube Demo](PASTE_YOUTUBE_LINK)
+- **Demo Video:** [YouTube Demo](https://youtu.be/UOqo4sST6hU)
 - **GitHub:** [Chores for Crypto Repo](https://github.com/codebatine/Chores-for-Crypto)
 - **Smart Contract Source Code:** [ChoresReward.sol](https://github.com/codebatine/Chores-for-Crypto/tree/main/contracts)
 
