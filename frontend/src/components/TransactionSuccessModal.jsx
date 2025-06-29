@@ -7,12 +7,34 @@ export default function TransactionSuccessModal({
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [linkClicked, setLinkClicked] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setShowConfetti(true);
       const timer = setTimeout(() => setShowConfetti(false), 3000);
+      console.log('TransactionSuccessModal opened');
       return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      console.log('Window gained focus, modal should stay open');
+    };
+
+    const handleWindowBlur = () => {
+      console.log('Window lost focus (probably opened external link)');
+    };
+
+    if (isOpen) {
+      window.addEventListener('focus', handleWindowFocus);
+      window.addEventListener('blur', handleWindowBlur);
+      
+      return () => {
+        window.removeEventListener('focus', handleWindowFocus);
+        window.removeEventListener('blur', handleWindowBlur);
+      };
     }
   }, [isOpen]);
 
@@ -125,9 +147,16 @@ export default function TransactionSuccessModal({
                   href={`https://sepolia.etherscan.io/tx/${transactionData.txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    // Prevent any event bubbling that might close the modal
+                    e.stopPropagation();
+                    setLinkClicked(true);
+                    console.log('Opening blockchain explorer in new tab');
+                    setTimeout(() => setLinkClicked(false), 3000);
+                  }}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition-colors"
                 >
-                  View
+                  🔗 View {linkClicked && '✓'}
                 </a>
               </div>
             </div>
@@ -140,7 +169,7 @@ export default function TransactionSuccessModal({
             onClick={onClose}
             className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-4 rounded-lg font-medium transition-colors"
           >
-            Close
+            ✅ Close
           </button>
           <button
             onClick={async () => {
@@ -173,9 +202,16 @@ export default function TransactionSuccessModal({
                 Copied!
               </span>
             ) : (
-              'Copy Hash'
+              '📋 Copy Hash'
             )}
           </button>
+        </div>
+
+        {/* Tip for blockchain viewing */}
+        <div className="text-center mt-3">
+          <p className="text-xs text-gray-500">
+            💡 Tip: Click "🔗 View" to see on blockchain - this modal will stay open!
+          </p>
         </div>
 
         {/* Celebration Message */}
